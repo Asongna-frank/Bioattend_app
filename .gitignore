@@ -1,0 +1,33 @@
+# Flutter/Dart/Pub related files
+doc/api/
+android/**/gradle-wrapper.jar
+android/.gradle/
+android/captures/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/**/GeneratedPluginRegistrant.java
+ios/.generated/
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/Generated.xcconfig
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Runner.xcodeproj/
+ios/Runner.xcworkspace/
+ios/Pods/
+ios/Podfile
+ios/Podfile.lock
+macos/Flutter/ephemeral/
+build/
+.dart_tool/
+.pub-cache/
+.packages
+pubspec.lock
+
+# IntelliJ related files
+.idea/
+.vscode/
+*.iml
+
+# Miscellaneous
+.DS_Store
+test/**/*.png
