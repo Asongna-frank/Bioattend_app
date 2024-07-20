@@ -1,12 +1,10 @@
 import 'package:bioattend_app/global.dart';
-import 'package:bioattend_app/models/student_model.dart';
 import 'package:bioattend_app/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bioattend_app/controllers/auth_controller.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,8 +16,9 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthController _authController = AuthController();
   bool _isLoading = false;
-  bool _obscurePassword = true; // To toggle password visibility
+  bool _obscurePassword = true;
 
   Future<void> _login() async {
     final String email = _emailController.text;
@@ -36,25 +35,21 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    final response = await http.post(
-      Uri.parse('https://biometric-attendance-application.onrender.com/api/auth/login/'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
+    final response = await _authController.login(email, password);
 
     setState(() {
       _isLoading = false;
     });
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final accessToken = data['access'];
-      final refreshToken = data['refresh'];
-      final user = data['user'];
+    if (response != null) {
+      final accessToken = response['access'];
+      final refreshToken = response['refresh'];
+      final user = response['user'];
 
-     userModel = UserModel.fromJson(user);
-      // Save tokens securely (example using shared_preferences)
-      await _saveTokens(accessToken, refreshToken);
+      userModel = UserModel.fromJson(user);
+
+      // Save tokens securely
+      await _authController.saveTokens(accessToken, refreshToken);
 
       // Navigate to HomeScreen
       Navigator.pushReplacement(
@@ -66,13 +61,6 @@ class _LoginScreenState extends State<LoginScreen> {
         SnackBar(content: Text('Invalid email or password')),
       );
     }
-  }
-
-  Future<void> _saveTokens(String accessToken, String refreshToken) async {
-    // Example using shared_preferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('access_token', accessToken);
-    await prefs.setString('refresh_token', refreshToken);
   }
 
   @override
@@ -164,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextField(
                     controller: _passwordController,
                     style: GoogleFonts.spaceGrotesk(),
-                    obscureText: _obscurePassword, // Use the boolean here
+                    obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       hintText: 'Enter your password',
                       border: OutlineInputBorder(
@@ -214,8 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: ElevatedButton.styleFrom(
                         textStyle: GoogleFonts.spaceGrotesk(),
                         foregroundColor: Colors.white,
-                        backgroundColor:
-                        Color.fromRGBO(28, 90, 64, 1), // foreground color
+                        backgroundColor: Color.fromRGBO(28, 90, 64, 1), // foreground color
                         minimumSize: Size(double.infinity, 50), // button size
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8), // border radius
