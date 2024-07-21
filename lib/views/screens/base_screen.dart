@@ -3,21 +3,27 @@ import 'home_screen.dart';
 import 'attendance_history_screen.dart';
 import 'view_courses_screen.dart';
 import 'profile_screen.dart';
+import 'view_students_screen.dart';
+import 'package:bioattend_app/global.dart'; // Import global variables
 
 class BaseScreen extends StatefulWidget {
   final Widget child;
   final int currentIndex;
   final bool showBackButton;
 
-  const BaseScreen({super.key, required this.child, required this.currentIndex, this.showBackButton = false});
+  const BaseScreen({
+    super.key,
+    required this.child,
+    required this.currentIndex,
+    this.showBackButton = false,
+  });
 
   @override
   _BaseScreenState createState() => _BaseScreenState();
 }
 
 class _BaseScreenState extends State<BaseScreen> {
-
-    void _onItemTapped(int index) {
+  void _onItemTapped(int index) {
     switch (index) {
       case 0:
         Navigator.pushReplacement(
@@ -42,6 +48,14 @@ class _BaseScreenState extends State<BaseScreen> {
           context,
           MaterialPageRoute(builder: (context) => const ProfileScreen()),
         );
+        break;
+      case 4: // New case for Student screen, only for lecturers
+        if (!isStudent) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const ViewStudentsScreen()),
+          );
+        }
         break;
     }
   }
@@ -69,6 +83,11 @@ class _BaseScreenState extends State<BaseScreen> {
             icon: Icon(Icons.person, color: widget.currentIndex == 3 ? const Color.fromRGBO(28, 90, 64, 1) : const Color(0xFF333333)),
             label: 'Profile',
           ),
+          if (!isStudent)
+            BottomNavigationBarItem(
+              icon: Icon(Icons.school, color: widget.currentIndex == 4 ? const Color.fromRGBO(28, 90, 64, 1) : const Color(0xFF333333)),
+              label: 'Student',
+            ),
         ],
         currentIndex: widget.currentIndex,
         selectedItemColor: const Color.fromRGBO(28, 90, 64, 1),

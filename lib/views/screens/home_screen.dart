@@ -1,5 +1,5 @@
-import 'package:bioattend_app/global.dart';
 import 'package:flutter/material.dart';
+import 'package:bioattend_app/global.dart';
 import '../../controllers/home_controller.dart';
 import '../widgets/home_card.dart';
 import '../widgets/class_card.dart';
@@ -10,6 +10,7 @@ import 'view_courses_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -20,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    print(userModel);
+    print('user model: ${userModel?.toJson()}');
     _homeController = HomeController(profileImageController: AnimationController(
       duration: const Duration(milliseconds: 100),
       vsync: this,
@@ -35,67 +36,76 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   void _handleProfileTap() {
     _homeController.animateProfileImage().then((_) {
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ProfileScreen()),
       );
     });
   }
 
+  Future<bool> _onWillPop() async {
+    return true; // Return true to allow back button to close the app
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BaseScreen(
-      currentIndex: 0,
-      child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(120.0),
-          child: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: const Color.fromRGBO(248, 248, 249, 1),
-            elevation: 0,
-            flexibleSpace: Padding(
-              padding: const EdgeInsets.only(top: 40.0, left: 16.0, right: 16.0),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Hey Chezem Miguel',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: BaseScreen(
+        currentIndex: 0,
+        child: Scaffold(
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(120.0),
+            child: AppBar(
+              automaticallyImplyLeading: false,
+              backgroundColor: const Color.fromRGBO(248, 248, 249, 1),
+              elevation: 0,
+              flexibleSpace: Padding(
+                padding: const EdgeInsets.only(top: 40.0, left: 16.0, right: 16.0),
+                child: Row(
+                  children: [
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Hey Chezem Miguel',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Welcome back to BioAttend',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
+                          Text(
+                            'Welcome back to BioAttend',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: _handleProfileTap,
-                    child: ScaleTransition(
-                      scale: _homeController.profileImageAnimation,
-                      child: const CircleAvatar(
-                        backgroundImage: NetworkImage('https://your_image_url'),
-                        radius: 20,
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                    GestureDetector(
+                      onTap: _handleProfileTap,
+                      child: ScaleTransition(
+                        scale: _homeController.profileImageAnimation,
+                        child: CircleAvatar(
+                          backgroundImage: (userModel != null && userModel!.image != null && userModel!.image!.isNotEmpty)
+                              ? NetworkImage(userModel!.image!)
+                              : const AssetImage('assets/images/profile.jpg') as ImageProvider,
+                          radius: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
+          body: const HomePage(),
         ),
-        body: const HomePage(),
       ),
     );
   }
@@ -131,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                 icon: Icons.article,
                 label: 'Attendance History',
                 onTap: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const AttendanceHistoryScreen()),
                   );
@@ -141,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                 icon: Icons.book,
                 label: 'View Courses',
                 onTap: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const ViewCoursesScreen()),
                   );

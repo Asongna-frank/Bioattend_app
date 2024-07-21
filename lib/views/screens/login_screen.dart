@@ -1,14 +1,17 @@
 import 'package:bioattend_app/global.dart';
 import 'package:bioattend_app/models/user_model.dart';
+import 'package:bioattend_app/models/student_model.dart';
+import 'package:bioattend_app/models/lecturer_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bioattend_app/controllers/auth_controller.dart';
 
 class LoginScreen extends StatefulWidget {
-  final bool isStudent;
+  final bool isStudentLogin;
 
-  const LoginScreen({super.key, required this.isStudent});
+  const LoginScreen({super.key, required this.isStudentLogin});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -36,8 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    final response =
-        await _authController.login(email, password, widget.isStudent);
+    final response = await _authController.login(email, password, widget.isStudentLogin);
 
     setState(() {
       _isLoading = false;
@@ -47,22 +49,26 @@ class _LoginScreenState extends State<LoginScreen> {
       final accessToken = response['access'];
       final refreshToken = response['refresh'];
       final user = response['user'];
-      
 
       userModel = UserModel.fromJson(user);
-      
-      
-      // Print statements for debugging
-      print('Access Token: $accessToken');
-      print('Refresh Token: $refreshToken');
-   
+
       // Save tokens securely
       await _authController.saveTokens(accessToken, refreshToken);
 
-      // Navigate to HomeScreen
+      isStudent = widget.isStudentLogin; // Set the global isStudent variable
+
+      if (isStudent) {
+        final student = response['student'];
+        studentModel = StudentModel.fromJson(student);
+      } else {
+        final lecturer = response['lecturer'];
+        lecturerModel = LecturerModel.fromJson(lecturer);
+      }
+
+      // Navigate to HomeScreen using Navigator.push
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -74,12 +80,12 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(248, 248, 249, 1),
+      backgroundColor: const Color.fromRGBO(248, 248, 249, 1),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Color.fromRGBO(248, 248, 249, 1),
+        backgroundColor: const Color.fromRGBO(248, 248, 249, 1),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -97,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Center(
                     child: Column(
                       children: [
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Text(
                           'BioAttend',
                           style: GoogleFonts.dmSans(
@@ -105,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Text(
                           'Welcome back to BioAttend',
                           style: GoogleFonts.spaceGrotesk(
@@ -124,14 +130,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Center(
                     child: Image.asset(
                       'assets/images/login_image.png',
                       height: 200,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Text(
                     'Email',
                     style: GoogleFonts.dmSans(
@@ -149,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Text(
                     'Password',
                     style: GoogleFonts.dmSans(
@@ -168,9 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
+                          _obscurePassword ? Icons.visibility : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() {
@@ -180,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -195,33 +199,30 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Text(
                           'Reset it',
                           style: GoogleFonts.spaceGrotesk(
-                            color: Color.fromRGBO(28, 90, 64, 1),
+                            color: const Color.fromRGBO(28, 90, 64, 1),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Center(
                     child: _isLoading
-                        ? CircularProgressIndicator()
+                        ? const CircularProgressIndicator()
                         : ElevatedButton(
-                            onPressed: _login,
-                            child: Text('Login'),
-                            style: ElevatedButton.styleFrom(
-                              textStyle: GoogleFonts.spaceGrotesk(),
-                              foregroundColor: Colors.white,
-                              backgroundColor: Color.fromRGBO(
-                                  28, 90, 64, 1), // foreground color
-                              minimumSize:
-                                  Size(double.infinity, 50), // button size
-                              shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(8), // border radius
-                              ),
-                            ),
-                          ),
+                      onPressed: _login,
+                      child: const Text('Login'),
+                      style: ElevatedButton.styleFrom(
+                        textStyle: GoogleFonts.spaceGrotesk(),
+                        foregroundColor: Colors.white,
+                        backgroundColor: const Color.fromRGBO(28, 90, 64, 1), // foreground color
+                        minimumSize: const Size(double.infinity, 50), // button size
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8), // border radius
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

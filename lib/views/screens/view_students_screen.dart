@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'base_screen.dart';
 import 'home_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class ViewStudentsScreen extends StatelessWidget {
+  const ViewStudentsScreen({super.key});
 
   Future<bool> _onWillPop(BuildContext context) async {
     Navigator.pushReplacement(
@@ -18,10 +18,10 @@ class ProfileScreen extends StatelessWidget {
     return WillPopScope(
       onWillPop: () => _onWillPop(context),
       child: BaseScreen(
-        currentIndex: 3,
+        currentIndex: 4,
         child: Scaffold(
           appBar: AppBar(
-            title: const Text('Profile'),
+            title: const Text('Class Roster'),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
@@ -33,7 +33,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           body: const Center(
-            child: Text('Profile Screen'),
+            child: Text('View Students Screen'),
           ),
         ),
       ),

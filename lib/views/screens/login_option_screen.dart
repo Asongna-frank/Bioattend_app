@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'login_screen.dart';
+import 'package:bioattend_app/global.dart'; // Import global variables
 
 class LoginOptionScreen extends StatelessWidget {
   const LoginOptionScreen({super.key});
@@ -36,19 +37,12 @@ class LoginOptionScreen extends StatelessWidget {
               const SizedBox(height: 184),
               ElevatedButton(
                 onPressed: () {
+                  isStudent = true; // Set global isStudent variable
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen(isStudent: true)),
+                    MaterialPageRoute(builder: (context) => const LoginScreen(isStudentLogin: true)),
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: const Color.fromRGBO(28, 90, 64, 1), // foreground
-                  minimumSize: const Size(350, 50), // button size
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5), // reduced border radius
-                  ),
-                ),
                 child: Text(
                   "I'm a Student",
                   style: GoogleFonts.spaceGrotesk(
@@ -58,22 +52,24 @@ class LoginOptionScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen(isStudent: false)),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color.fromRGBO(28, 90, 64, 1),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: const Color.fromRGBO(28, 90, 64, 1), // foreground
                   minimumSize: const Size(350, 50), // button size
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5), // reduced border radius
                   ),
                 ),
+              ),
+              const SizedBox(height: 20),
+              OutlinedButton(
+                onPressed: () {
+                  isStudent = false; // Set global isStudent variable
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen(isStudentLogin: false)),
+                  );
+                },
                 child: Text(
                   "I'm a Lecturer",
                   style: GoogleFonts.spaceGrotesk(
@@ -81,6 +77,13 @@ class LoginOptionScreen extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
                     ),
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color.fromRGBO(28, 90, 64, 1),
+                  minimumSize: const Size(350, 50), // button size
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5), // reduced border radius
                   ),
                 ),
               ),

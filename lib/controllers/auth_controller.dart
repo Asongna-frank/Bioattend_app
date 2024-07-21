@@ -30,27 +30,29 @@ class AuthController {
       final responseData = jsonDecode(response.body);
       final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      if (isStudent) {
-        final student = StudentModel.fromJson(responseData['student']);
-        print('student: ${student.toJson()}'); // checking for student instance
-        prefs.setString('student', jsonEncode(student));
-        
-      } else {
-        final lecturer = LecturerModel.fromJson(responseData['lecturer']);
-        print('lecturer: $lecturer'); // checking for lecturer instance
-        prefs.setString('lecturer', jsonEncode(lecturer));
-      }
-
       final user = UserModel.fromJson(responseData['user']);
-      print('user: $user'); // checking for user instance
+      print('user: ${user.toJson()}'); // checking for user instance
       prefs.setString('user', jsonEncode(user));
 
-      return {
-        'access': responseData['access'],
-        'refresh': responseData['refresh'],
-        'user': responseData['user'],
-       
-      };
+      if (isStudent) {
+        final student = StudentModel.fromJson(responseData['student']);
+        prefs.setString('student', jsonEncode(student));
+        return {
+          'access': responseData['access'],
+          'refresh': responseData['refresh'],
+          'user': responseData['user'],
+          'student': responseData['student'],
+        };
+      } else {
+        final lecturer = LecturerModel.fromJson(responseData['lecturer']);
+        prefs.setString('lecturer', jsonEncode(lecturer));
+        return {
+          'access': responseData['access'],
+          'refresh': responseData['refresh'],
+          'user': responseData['user'],
+          'lecturer': responseData['lecturer'],
+        };
+      }
     } else {
       return null;
     }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
+import 'home_screen.dart'; // Import the HomeScreen
 import 'wifi_selection_screen.dart';
 
 class AttendanceScreen extends StatefulWidget {
@@ -79,69 +80,83 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     );
   }
 
+  Future<bool> _onWillPop() async {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: const Text(
-          'Take Attendance',
-          style: TextStyle(color: Colors.black),
-        ),
-        actions: const [
-          CircleAvatar(
-            backgroundImage: AssetImage('assets/images/profile.jpg'),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
+            },
           ),
-          SizedBox(width: 16),
-        ],
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _formattedTime,
-              style: const TextStyle(
-                fontSize: 64,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1C5A40),
-              ),
+          title: const Text(
+            'Take Attendance',
+            style: TextStyle(color: Colors.black),
+          ),
+          actions: const [
+            CircleAvatar(
+              backgroundImage: AssetImage('assets/images/profile.jpg'),
             ),
-            const SizedBox(height: 8),
-            Text(
-              _formattedDate,
-              style: const TextStyle(
-                fontSize: 20,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _authenticateAndNavigate,
-              style: ElevatedButton.styleFrom(
-                foregroundColor: const Color(0xFF1C5A40),
-                shape: const CircleBorder(),
-                backgroundColor: Colors.grey[200],
-                padding: const EdgeInsets.all(40),
-                side: const BorderSide(
+            SizedBox(width: 16),
+          ],
+          backgroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _formattedTime,
+                style: const TextStyle(
+                  fontSize: 64,
+                  fontWeight: FontWeight.bold,
                   color: Color(0xFF1C5A40),
-                  width: 8,
                 ),
               ),
-              child: const Icon(
-                Icons.fingerprint,
-                size: 64,
-                color: Color(0xFF1C5A40),
+              const SizedBox(height: 8),
+              Text(
+                _formattedDate,
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.grey,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: _authenticateAndNavigate,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: const Color(0xFF1C5A40),
+                  shape: const CircleBorder(),
+                  backgroundColor: Colors.grey[200],
+                  padding: const EdgeInsets.all(40),
+                  side: const BorderSide(
+                    color: Color(0xFF1C5A40),
+                    width: 8,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.fingerprint,
+                  size: 64,
+                  color: Color(0xFF1C5A40),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
