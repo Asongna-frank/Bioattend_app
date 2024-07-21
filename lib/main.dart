@@ -8,7 +8,7 @@ import 'package:bioattend_app/views/screens/view_courses_screen.dart';
 import 'package:bioattend_app/views/screens/take_attendance_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,13 +22,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       routes: {
-        '/': (context) => SplashScreen(), // Splash Screen route
-        '/loginOptionScreen': (context) => LoginOptionScreen(), // Login Option Screen route
-        '/homeScreen': (context) => HomeScreen(), // Home Screen route
-        '/profileScreen': (context) => ProfileScreen(), // Profile Screen route
-        '/attendanceHistoryScreen': (context) => AttendanceHistoryScreen(), // Attendance History Screen route
-        '/viewCoursesScreen': (context) => ViewCoursesScreen(), // View Courses Screen route
-        '/takeAttendance': (context) => AttendanceScreen(), // Take Attendance Screen route
+        '/': (context) => const SplashScreen(), // Splash Screen route
+        '/loginOptionScreen': (context) => const LoginOptionScreen(), // Login Option Screen route
+        '/homeScreen': (context) => const HomeScreen(), // Home Screen route
+        '/profileScreen': (context) => const ProfileScreen(), // Profile Screen route
+        '/attendanceHistoryScreen': (context) => const AttendanceHistoryScreen(), // Attendance History Screen route
+        '/viewCoursesScreen': (context) => const ViewCoursesScreen(), // View Courses Screen route
+        '/takeAttendance': (context) => const AttendanceScreen(), // Take Attendance Screen route
       },
     );
   }

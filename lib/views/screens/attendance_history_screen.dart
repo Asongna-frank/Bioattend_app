@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'base_screen.dart';
 
 class AttendanceHistoryScreen extends StatelessWidget {
+  const AttendanceHistoryScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -10,17 +12,17 @@ class AttendanceHistoryScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen()),
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
               );
             },
           ),
-          title: Text('Attendance History'),
+          title: const Text('Attendance History'),
         ),
-        body: Center(
+        body: const Center(
           child: Text('Attendance History Screen'),
         ),
       ),

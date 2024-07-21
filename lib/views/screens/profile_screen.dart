@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'base_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -10,17 +12,17 @@ class ProfileScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomeScreen()),
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
               );
             },
           ),
-          title: Text('Profile Screen'),
+          title: const Text('Profile Screen'),
         ),
-        body: Center(
+        body: const Center(
           child: Text('Profile Screen'),
         ),
       ),

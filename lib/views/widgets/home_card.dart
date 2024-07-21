@@ -5,7 +5,7 @@ class HomeButton extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
 
-  const HomeButton({Key? key, required this.icon, required this.label, required this.onTap}) : super(key: key);
+  const HomeButton({super.key, required this.icon, required this.label, required this.onTap});
 
   @override
   _HomeButtonState createState() => _HomeButtonState();
@@ -18,7 +18,7 @@ class _HomeButtonState extends State<HomeButton> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(milliseconds: 100),
+      duration: const Duration(milliseconds: 100),
       vsync: this,
     );
   }
@@ -54,9 +54,9 @@ class _HomeButtonState extends State<HomeButton> with SingleTickerProviderStateM
           width: MediaQuery.of(context).size.width / 2.35,
           height: 210,
           decoration: BoxDecoration(
-            color: Color.fromRGBO(28, 90, 64, 0.03),
+            color: const Color.fromRGBO(28, 90, 64, 0.03),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Color.fromRGBO(28, 90, 64, 0.07)),
+            border: Border.all(color: const Color.fromRGBO(28, 90, 64, 0.07)),
           ),
           child: Stack(
             children: [
@@ -65,10 +65,10 @@ class _HomeButtonState extends State<HomeButton> with SingleTickerProviderStateM
                 left: 8,
                 child: Padding(
                   padding: const EdgeInsets.all(0),
-                  child: Icon(widget.icon, size: 40, color: Color.fromRGBO(28, 90, 64, 1)),
+                  child: Icon(widget.icon, size: 40, color: const Color.fromRGBO(28, 90, 64, 1)),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -80,12 +80,12 @@ class _HomeButtonState extends State<HomeButton> with SingleTickerProviderStateM
                           padding: const EdgeInsets.fromLTRB(14,0,0,0),
                           child: Text(
                             widget.label.split(' ')[0],
-                            style: TextStyle(fontSize: 16, color: Color.fromRGBO(28, 90, 64, 1)),
+                            style: const TextStyle(fontSize: 16, color: Color.fromRGBO(28, 90, 64, 1)),
                           ),
                         ),
-                        Spacer(), // Spacer to push the arrow to the extreme right
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
+                        const Spacer(), // Spacer to push the arrow to the extreme right
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
                           child: Icon(Icons.arrow_forward, color: Color.fromRGBO(28, 90, 64, 1)),
                         ),
                       ],
@@ -94,7 +94,7 @@ class _HomeButtonState extends State<HomeButton> with SingleTickerProviderStateM
                       padding: const EdgeInsets.fromLTRB(14,0,0,8),
                       child: Text(
                         widget.label.split(' ')[1],
-                        style: TextStyle(fontSize: 16, color: Color.fromRGBO(28, 90, 64, 1)),
+                        style: const TextStyle(fontSize: 16, color: Color.fromRGBO(28, 90, 64, 1)),
                       ),
                     ),
                   ],

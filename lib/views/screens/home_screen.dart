@@ -1,5 +1,4 @@
 import 'package:bioattend_app/global.dart';
-import 'package:bioattend_app/models/user_model.dart';
 import 'package:flutter/material.dart';
 import '../../controllers/home_controller.dart';
 import '../widgets/home_card.dart';
@@ -8,10 +7,9 @@ import 'base_screen.dart';
 import 'profile_screen.dart';
 import 'attendance_history_screen.dart';
 import 'view_courses_screen.dart';
-import 'take_attendance_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key});
+  const HomeScreen({super.key});
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -24,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     super.initState();
     print(userModel);
     _homeController = HomeController(profileImageController: AnimationController(
-      duration: Duration(milliseconds: 100),
+      duration: const Duration(milliseconds: 100),
       vsync: this,
     ));
   }
@@ -39,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _homeController.animateProfileImage().then((_) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ProfileScreen()),
+        MaterialPageRoute(builder: (context) => const ProfileScreen()),
       );
     });
   }
@@ -50,16 +48,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       currentIndex: 0,
       child: Scaffold(
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(120.0),
+          preferredSize: const Size.fromHeight(120.0),
           child: AppBar(
             automaticallyImplyLeading: false,
-            backgroundColor: Color.fromRGBO(248, 248, 249, 1),
+            backgroundColor: const Color.fromRGBO(248, 248, 249, 1),
             elevation: 0,
             flexibleSpace: Padding(
               padding: const EdgeInsets.only(top: 40.0, left: 16.0, right: 16.0),
               child: Row(
                 children: [
-                  Expanded(
+                  const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -86,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     onTap: _handleProfileTap,
                     child: ScaleTransition(
                       scale: _homeController.profileImageAnimation,
-                      child: CircleAvatar(
+                      child: const CircleAvatar(
                         backgroundImage: NetworkImage('https://your_image_url'),
                         radius: 20,
                       ),
@@ -97,13 +95,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
           ),
         ),
-        body: HomePage(),
+        body: const HomePage(),
       ),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -133,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => AttendanceHistoryScreen()),
+                    MaterialPageRoute(builder: (context) => const AttendanceHistoryScreen()),
                   );
                 },
               ),
@@ -143,25 +143,25 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => ViewCoursesScreen()),
+                    MaterialPageRoute(builder: (context) => const ViewCoursesScreen()),
                   );
                 },
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Today\'s Classes',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Material(
-                color: Color.fromRGBO(28, 90, 64, 1),
-                shape: CircleBorder(),
+                color: const Color.fromRGBO(28, 90, 64, 1),
+                shape: const CircleBorder(),
                 child: InkWell(
-                  customBorder: CircleBorder(),
+                  customBorder: const CircleBorder(),
                   onTap: () {
                     showModalBottomSheet(
                       context: context,
@@ -170,28 +170,28 @@ class _HomePageState extends State<HomePage> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             ListTile(
-                              title: Text('All'),
+                              title: const Text('All'),
                               onTap: () {
                                 _filterClasses('All');
                                 Navigator.pop(context);
                               },
                             ),
                             ListTile(
-                              title: Text('Finished'),
+                              title: const Text('Finished'),
                               onTap: () {
                                 _filterClasses('Finished');
                                 Navigator.pop(context);
                               },
                             ),
                             ListTile(
-                              title: Text('Ongoing'),
+                              title: const Text('Ongoing'),
                               onTap: () {
                                 _filterClasses('Ongoing');
                                 Navigator.pop(context);
                               },
                             ),
                             ListTile(
-                              title: Text('Coming'),
+                              title: const Text('Coming'),
                               onTap: () {
                                 _filterClasses('Coming');
                                 Navigator.pop(context);
@@ -202,7 +202,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     );
                   },
-                  child: Padding(
+                  child: const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Icon(Icons.filter_list, color: Colors.white),
                   ),
@@ -210,7 +210,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Expanded(
             child: ListView.builder(
               itemCount: 4, // Update this count based on your data
@@ -221,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                   title: 'Algebra',
                   time: '09:00 am | 11:00 am',
                   status: 'Finished',
-                  statusColor: Color.fromRGBO(28, 90, 64, 1),
+                  statusColor: const Color.fromRGBO(28, 90, 64, 1),
                 );
               },
             ),

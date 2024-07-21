@@ -5,6 +5,8 @@ import 'package:local_auth/local_auth.dart';
 import 'wifi_selection_screen.dart';
 
 class AttendanceScreen extends StatefulWidget {
+  const AttendanceScreen({super.key});
+
   @override
   _AttendanceScreenState createState() => _AttendanceScreenState();
 }
@@ -20,7 +22,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     super.initState();
     _formattedTime = DateFormat('hh:mm a').format(DateTime.now());
     _formattedDate = DateFormat('MMM dd, yyyy - EEEE').format(DateTime.now());
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _formattedTime = DateFormat('hh:mm a').format(DateTime.now());
         _formattedDate = DateFormat('MMM dd, yyyy - EEEE').format(DateTime.now());
@@ -63,17 +65,17 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
     if (!authenticated) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Authentication failed or not set up.')),
+        const SnackBar(content: Text('Authentication failed or not set up.')),
       );
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Authentication successful!')),
+      const SnackBar(content: Text('Authentication successful!')),
     );
 
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => WiFiSelectionScreen()),
+      MaterialPageRoute(builder: (context) => const WiFiSelectionScreen()),
     );
   }
 
@@ -82,16 +84,16 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        title: Text(
+        title: const Text(
           'Take Attendance',
           style: TextStyle(color: Colors.black),
         ),
-        actions: [
+        actions: const [
           CircleAvatar(
             backgroundImage: AssetImage('assets/images/profile.jpg'),
           ),
@@ -106,34 +108,34 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           children: [
             Text(
               _formattedTime,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 64,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF1C5A40),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               _formattedDate,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
                 color: Colors.grey,
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: _authenticateAndNavigate,
               style: ElevatedButton.styleFrom(
-                foregroundColor: Color(0xFF1C5A40),
-                shape: CircleBorder(),
+                foregroundColor: const Color(0xFF1C5A40),
+                shape: const CircleBorder(),
                 backgroundColor: Colors.grey[200],
-                padding: EdgeInsets.all(40),
-                side: BorderSide(
+                padding: const EdgeInsets.all(40),
+                side: const BorderSide(
                   color: Color(0xFF1C5A40),
                   width: 8,
                 ),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.fingerprint,
                 size: 64,
                 color: Color(0xFF1C5A40),

@@ -3,11 +3,12 @@ import 'package:bioattend_app/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'home_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bioattend_app/controllers/auth_controller.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final bool isStudent;
+
+  const LoginScreen({super.key, required this.isStudent});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -35,7 +36,8 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    final response = await _authController.login(email, password);
+    final response =
+        await _authController.login(email, password, widget.isStudent);
 
     setState(() {
       _isLoading = false;
@@ -45,9 +47,15 @@ class _LoginScreenState extends State<LoginScreen> {
       final accessToken = response['access'];
       final refreshToken = response['refresh'];
       final user = response['user'];
+      
 
       userModel = UserModel.fromJson(user);
-
+      
+      
+      // Print statements for debugging
+      print('Access Token: $accessToken');
+      print('Refresh Token: $refreshToken');
+   
       // Save tokens securely
       await _authController.saveTokens(accessToken, refreshToken);
 
@@ -160,7 +168,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                          _obscurePassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() {
@@ -197,18 +207,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: _isLoading
                         ? CircularProgressIndicator()
                         : ElevatedButton(
-                      onPressed: _login,
-                      child: Text('Login'),
-                      style: ElevatedButton.styleFrom(
-                        textStyle: GoogleFonts.spaceGrotesk(),
-                        foregroundColor: Colors.white,
-                        backgroundColor: Color.fromRGBO(28, 90, 64, 1), // foreground color
-                        minimumSize: Size(double.infinity, 50), // button size
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8), // border radius
-                        ),
-                      ),
-                    ),
+                            onPressed: _login,
+                            child: Text('Login'),
+                            style: ElevatedButton.styleFrom(
+                              textStyle: GoogleFonts.spaceGrotesk(),
+                              foregroundColor: Colors.white,
+                              backgroundColor: Color.fromRGBO(
+                                  28, 90, 64, 1), // foreground color
+                              minimumSize:
+                                  Size(double.infinity, 50), // button size
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(8), // border radius
+                              ),
+                            ),
+                          ),
                   ),
                 ],
               ),

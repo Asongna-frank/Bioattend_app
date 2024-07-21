@@ -3,6 +3,8 @@ import 'package:wifi_iot/wifi_iot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WiFiSelectionScreen extends StatefulWidget {
+  const WiFiSelectionScreen({super.key});
+
   @override
   _WiFiSelectionScreenState createState() => _WiFiSelectionScreenState();
 }
@@ -12,7 +14,7 @@ class _WiFiSelectionScreenState extends State<WiFiSelectionScreen> {
   String? _selectedSSID;
   String? _savedSSID;
   String? _savedPassword;
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isConnecting = false;
 
   @override
@@ -114,21 +116,21 @@ class _WiFiSelectionScreenState extends State<WiFiSelectionScreen> {
           content: TextField(
             controller: _passwordController,
             obscureText: true,
-            decoration: InputDecoration(hintText: 'Password'),
+            decoration: const InputDecoration(hintText: 'Password'),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _connectToWiFi(ssid, _passwordController.text);
               },
-              child: Text('Connect'),
+              child: const Text('Connect'),
             ),
           ],
         );
@@ -140,16 +142,16 @@ class _WiFiSelectionScreenState extends State<WiFiSelectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Wi-Fi Network'),
+        title: const Text('Select Wi-Fi Network'),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: _scanForNetworks,
           ),
         ],
       ),
       body: _isConnecting
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
         itemCount: _networks?.length ?? 0,
         itemBuilder: (context, index) {
@@ -157,7 +159,7 @@ class _WiFiSelectionScreenState extends State<WiFiSelectionScreen> {
           return ListTile(
             title: Text(ssid),
             trailing: _savedSSID == ssid
-                ? Icon(Icons.check, color: Colors.green)
+                ? const Icon(Icons.check, color: Colors.green)
                 : null,
             onTap: () {
               if (_savedSSID == ssid && _savedPassword != null) {

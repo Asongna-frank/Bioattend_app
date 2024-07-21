@@ -10,14 +10,14 @@ class ClassCard extends StatefulWidget {
   final int index; // Add an index parameter
 
   const ClassCard({
-    Key? key,
+    super.key,
     required this.code,
     required this.title,
     required this.time,
     required this.status,
     required this.statusColor,
     required this.index, // Initialize the index parameter
-  }) : super(key: key);
+  });
 
   @override
   _ClassCardState createState() => _ClassCardState();
@@ -30,7 +30,7 @@ class _ClassCardState extends State<ClassCard> with SingleTickerProviderStateMix
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(milliseconds: 100),
+      duration: const Duration(milliseconds: 100),
       vsync: this,
     );
   }
@@ -49,7 +49,7 @@ class _ClassCardState extends State<ClassCard> with SingleTickerProviderStateMix
     _controller.reverse();
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AttendanceScreen()),
+      MaterialPageRoute(builder: (context) => const AttendanceScreen()),
     );
   }
 
@@ -66,13 +66,13 @@ class _ClassCardState extends State<ClassCard> with SingleTickerProviderStateMix
       child: ScaleTransition(
         scale: Tween(begin: 1.0, end: 0.95).animate(_controller),
         child: Card(
-          color: Color.fromRGBO(248, 248, 249, 1),
+          color: const Color.fromRGBO(248, 248, 249, 1),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: Color.fromRGBO(28, 90, 64, 1),
+              backgroundColor: const Color.fromRGBO(28, 90, 64, 1),
               child: Text(
                 widget.index.toString(), // Use the index to display the number
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
             title: Text('${widget.code}: ${widget.title}'),
