@@ -17,15 +17,42 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late final HomeController _homeController;
+  List<Map<String, dynamic>> timetable = [];
 
   @override
   void initState() {
     super.initState();
     print('user model: ${userModel?.toJson()}');
-    _homeController = HomeController(profileImageController: AnimationController(
-      duration: const Duration(milliseconds: 100),
-      vsync: this,
-    ));
+    _homeController = HomeController(
+      profileImageController: AnimationController(
+        duration: const Duration(milliseconds: 100),
+        vsync: this,
+      ),
+    );
+
+    _fetchTimetable();
+  }
+
+  Future<void> _fetchTimetable() async {
+    Map<int, dynamic> days = {
+      1: "monday",
+      2: "tuesday",
+      3: "wednesday",
+      4: "thursday",
+      5: "friday",
+      6: "saturday",
+      7: "sunday"
+    };
+
+    try {
+      final result = await _homeController.getCardDetails(
+          studentModel!.id, days[DateTime.now().weekday]);
+      setState(() {
+        timetable = result;
+      });
+    } catch (e) {
+      print('Error fetching timetable: $e');
+    }
   }
 
   @override
@@ -104,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
             ),
           ),
-          body: const HomePage(),
+          body: HomePage(timetable: timetable),
         ),
       ),
     );
@@ -112,7 +139,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final List<Map<String, dynamic>> timetable;
+
+  const HomePage({super.key, required this.timetable});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -223,15 +252,19 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 16),
           Expanded(
             child: ListView.builder(
-              itemCount: 4, // Update this count based on your data
+              itemCount: widget.timetable.length,
               itemBuilder: (context, index) {
+                final item = widget.timetable[index];
                 return ClassCard(
-                  index: index + 1, // Pass the index + 1 to start from 1
-                  code: 'CEF 246',
-                  title: 'Algebra',
-                  time: '09:00 am | 11:00 am',
-                  status: 'Finished',
-                  statusColor: const Color.fromRGBO(28, 90, 64, 1),
+                  index: index + 1,
+                  code: item['courseCode'],
+                  title: item['courseName'],
+                  time: '${item['startTime']} | ${item['endTime']}',
+                  courseID: item['courseID'],
+                  courseName: item['courseName'],
+                  courseCode: item['courseCode'],
+                  startTime: item['startTime'],
+                  endTime: item['endTime'],
                 );
               },
             ),

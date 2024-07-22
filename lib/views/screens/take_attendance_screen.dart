@@ -6,7 +6,20 @@ import 'home_screen.dart'; // Import the HomeScreen
 import 'wifi_selection_screen.dart';
 
 class AttendanceScreen extends StatefulWidget {
-  const AttendanceScreen({super.key});
+  final int courseID;
+  final String courseName;
+  final String courseCode;
+  final String startTime;
+  final String endTime;
+
+  const AttendanceScreen({
+    super.key,
+    required this.courseID,
+    required this.courseName,
+    required this.courseCode,
+    required this.startTime,
+    required this.endTime,
+  });
 
   @override
   _AttendanceScreenState createState() => _AttendanceScreenState();
@@ -21,12 +34,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   @override
   void initState() {
     super.initState();
+    print('from take attendance screen: ${widget.courseID}, ${widget.courseName}, ${widget.courseCode}');
     _formattedTime = DateFormat('hh:mm a').format(DateTime.now());
     _formattedDate = DateFormat('MMM dd, yyyy - EEEE').format(DateTime.now());
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _formattedTime = DateFormat('hh:mm a').format(DateTime.now());
-        _formattedDate = DateFormat('MMM dd, yyyy - EEEE').format(DateTime.now());
+        _formattedDate =
+            DateFormat('MMM dd, yyyy - EEEE').format(DateTime.now());
       });
     });
   }
@@ -48,7 +63,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       }
 
       final List<BiometricType> availableBiometrics =
-      await auth.getAvailableBiometrics();
+          await auth.getAvailableBiometrics();
 
       if (availableBiometrics.isEmpty) {
         return;

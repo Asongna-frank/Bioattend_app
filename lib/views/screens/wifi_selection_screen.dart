@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi_scan/wifi_scan.dart';
 
 class WiFiSelectionScreen extends StatefulWidget {
   const WiFiSelectionScreen({super.key});
@@ -10,7 +11,7 @@ class WiFiSelectionScreen extends StatefulWidget {
 }
 
 class _WiFiSelectionScreenState extends State<WiFiSelectionScreen> {
-  List<WifiNetwork?>? _networks = [];
+  List<WiFiAccessPoint> _networks = [];
   String? _selectedSSID;
   String? _savedSSID;
   String? _savedPassword;
@@ -33,10 +34,21 @@ class _WiFiSelectionScreenState extends State<WiFiSelectionScreen> {
   }
 
   Future<void> _scanForNetworks() async {
-    List<WifiNetwork?>? networks = await WiFiForIoTPlugin.loadWifiList();
-    setState(() {
-      _networks = networks;
-    });
+    final wifiScan = WiFiScan.instance;
+    final canStartScan = await wifiScan.canStartScan();
+    if (canStartScan == CanStartScan.yes) {
+      await wifiScan.startScan();
+      await Future.delayed(Duration(seconds: 2)); // Add some delay for scanning
+      List<WiFiAccessPoint> networks = await wifiScan.getScannedResults();
+      setState(() {
+        _networks = networks;
+      });
+    } else {
+      // Handle the case when WiFi scan is not supported
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('WiFi scanning is not supported on this device.')),
+      );
+    }
   }
 
   Future<void> _connectToWiFi(String ssid, String password) async {
@@ -87,9 +99,10 @@ class _WiFiSelectionScreenState extends State<WiFiSelectionScreen> {
       builder: (context) {
         return AlertDialog(
           title: Text(success ? 'Success' : 'Failure'),
-          content: Text(message ?? (success
-              ? 'Successfully connected to $ssid!'
-              : 'Failed to connect to $ssid. Please try again.')),
+          content: Text(message ??
+              (success
+                  ? 'Successfully connected to $ssid!'
+                  : 'Failed to connect to $ssid. Please try again.')),
           actions: [
             TextButton(
               onPressed: () {
@@ -153,24 +166,24 @@ class _WiFiSelectionScreenState extends State<WiFiSelectionScreen> {
       body: _isConnecting
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
-        itemCount: _networks?.length ?? 0,
-        itemBuilder: (context, index) {
-          String ssid = _networks![index]?.ssid ?? '';
-          return ListTile(
-            title: Text(ssid),
-            trailing: _savedSSID == ssid
-                ? const Icon(Icons.check, color: Colors.green)
-                : null,
-            onTap: () {
-              if (_savedSSID == ssid && _savedPassword != null) {
-                _connectToWiFi(ssid, _savedPassword!);
-              } else {
-                _showPasswordDialog(ssid);
-              }
-            },
-          );
-        },
-      ),
+              itemCount: _networks.length,
+              itemBuilder: (context, index) {
+                String ssid = _networks[index].ssid;
+                return ListTile(
+                  title: Text(ssid),
+                  trailing: _savedSSID == ssid
+                      ? const Icon(Icons.check, color: Colors.green)
+                      : null,
+                  onTap: () {
+                    if (_savedSSID == ssid && _savedPassword != null) {
+                      _connectToWiFi(ssid, _savedPassword!);
+                    } else {
+                      _showPasswordDialog(ssid);
+                    }
+                  },
+                );
+              },
+            ),
     );
   }
 }

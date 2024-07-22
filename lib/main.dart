@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         '/profileScreen': (context) => const ProfileScreen(), // Profile Screen route
         '/attendanceHistoryScreen': (context) => const AttendanceHistoryScreen(), // Attendance History Screen route
         '/viewCoursesScreen': (context) => const ViewCoursesScreen(), // View Courses Screen route
-        '/takeAttendance': (context) => const AttendanceScreen(), // Take Attendance Screen route
+       // '/takeAttendance': (context) => const AttendanceScreen(courseID: null,), // Take Attendance Screen route
       },
     );
   }

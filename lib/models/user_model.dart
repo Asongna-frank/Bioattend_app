@@ -12,7 +12,7 @@ class UserModel {
     required this.email,
     required this.number,
     required this.role,
-    this.image,
+    required this.image,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
