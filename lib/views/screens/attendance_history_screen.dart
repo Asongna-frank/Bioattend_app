@@ -18,15 +18,14 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
   List<Map<String, dynamic>> _attendanceHistory = [];
   List<Map<String, dynamic>> _filteredAttendanceHistory = [];
   bool _isLoading = true;
+  String _selectedStatus = 'All';
+  String _searchQuery = '';
   DateTimeRange? _selectedDateRange;
-  String? _selectedStatus;
-  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchAttendanceHistory();
-    _searchController.addListener(_filterAttendanceHistory);
   }
 
   Future<void> _fetchAttendanceHistory() async {
@@ -43,10 +42,9 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
           attendance['courseCode'] = 'Unknown Code';
         }
       }
-      attendanceHistory.sort((a, b) => DateTime.parse(b['date']).compareTo(DateTime.parse(a['date'])));
       setState(() {
-        _attendanceHistory = attendanceHistory;
-        _filteredAttendanceHistory = attendanceHistory;
+        _attendanceHistory = attendanceHistory.reversed.toList(); // Most recent first
+        _filteredAttendanceHistory = attendanceHistory.reversed.toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -55,6 +53,23 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error fetching attendance history: $e')));
     }
+  }
+
+  void _filterAttendance() {
+    setState(() {
+      _filteredAttendanceHistory = _attendanceHistory.where((attendance) {
+        final matchesStatus = _selectedStatus == 'All' || attendance['status'] == _selectedStatus.toLowerCase();
+        final matchesDateRange = _selectedDateRange == null || (
+          DateTime.parse(attendance['date']).isAfter(_selectedDateRange!.start) &&
+          DateTime.parse(attendance['date']).isBefore(_selectedDateRange!.end.add(const Duration(days: 1)))
+        );
+        final matchesSearch = _searchQuery.isEmpty ||
+            attendance['courseName'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            attendance['courseCode'].toLowerCase().contains(_searchQuery.toLowerCase());
+
+        return matchesStatus && matchesDateRange && matchesSearch;
+      }).toList();
+    });
   }
 
   Future<void> _selectDateRange(BuildContext context) async {
@@ -67,38 +82,9 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     if (picked != null && picked != _selectedDateRange) {
       setState(() {
         _selectedDateRange = picked;
-        _filterAttendanceHistory();
+        _filterAttendance();
       });
     }
-  }
-
-  void _filterAttendanceHistory() {
-    List<Map<String, dynamic>> filteredList = _attendanceHistory;
-
-    if (_selectedStatus != null && _selectedStatus!.isNotEmpty) {
-      filteredList = filteredList.where((attendance) => attendance['status'].toLowerCase() == _selectedStatus!.toLowerCase()).toList();
-    }
-
-    if (_selectedDateRange != null) {
-      filteredList = filteredList.where((attendance) {
-        DateTime attendanceDate = DateTime.parse(attendance['date']);
-        return attendanceDate.isAfter(_selectedDateRange!.start.subtract(const Duration(days: 1))) &&
-            attendanceDate.isBefore(_selectedDateRange!.end.add(const Duration(days: 1)));
-      }).toList();
-    }
-
-    String searchText = _searchController.text.toLowerCase();
-    if (searchText.isNotEmpty) {
-      filteredList = filteredList.where((attendance) {
-        String courseName = attendance['courseName'].toLowerCase();
-        String courseCode = attendance['courseCode'].toLowerCase();
-        return courseName.contains(searchText) || courseCode.contains(searchText);
-      }).toList();
-    }
-
-    setState(() {
-      _filteredAttendanceHistory = filteredList;
-    });
   }
 
   @override
@@ -127,7 +113,12 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                   children: [
                     const SizedBox(height: 10),
                     TextField(
-                      controller: _searchController,
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                          _filterAttendance();
+                        });
+                      },
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.search),
                         hintText: 'Search for Course',
@@ -137,33 +128,30 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          DropdownButton<String>(
-                            hint: const Text('Status'),
-                            value: _selectedStatus,
-                            items: <String>['Present', 'Absent'].map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            onChanged: (newValue) {
-                              setState(() {
-                                _selectedStatus = newValue;
-                                _filterAttendanceHistory();
-                              });
-                            },
-                          ),
-                          const SizedBox(width: 20),
-                          ElevatedButton(
-                            onPressed: () => _selectDateRange(context),
-                            child: const Text('Date'),
-                          ),
-                        ],
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        DropdownButton<String>(
+                          value: _selectedStatus,
+                          hint: const Text('Status'),
+                          items: <String>['All', 'Present', 'Absent'].map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedStatus = value!;
+                              _filterAttendance();
+                            });
+                          },
+                        ),
+                        TextButton(
+                          onPressed: () => _selectDateRange(context),
+                          child: const Text('Date'),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 20),
                     const Text(

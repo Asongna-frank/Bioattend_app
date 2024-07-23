@@ -35,7 +35,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.only(top: 40.0, left: 20.0, right: 20.0, bottom: 100.0),
                   decoration: const BoxDecoration(
                     color: Color(0xFF1C5A40),
                     borderRadius: BorderRadius.only(
@@ -45,27 +44,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back, color: Colors.white),
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                                );
-                              },
-                              padding: const EdgeInsets.all(12.0),
-                            ),
-                          ],
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back, color: Colors.white),
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => const HomeScreen()),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(imageUrl),
-                        radius: 75, // Increased size by a factor of 3 (original was 50)
+                      const SizedBox(height: 40), // Space to bring the profile image down
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [                         
+                          CircleAvatar(
+                            radius: 85,
+                            backgroundColor: Colors.white, // White stroke
+                            child: CircleAvatar(
+                              backgroundImage: NetworkImage(imageUrl),
+                              radius: 75, // Size of the profile image
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -105,13 +110,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _buildPasswordField('Confirm Password'),
                         const SizedBox(height: 20),
                         Center(
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                              backgroundColor: const Color(0xFF1C5A40),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                                backgroundColor: const Color(0xFF1C5A40),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text(
+                                'Change Password',
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
-                            child: const Text('Change Password'),
                           ),
                         ),
                       ],
