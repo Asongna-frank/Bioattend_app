@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
     try {
       final result = await _homeController.getCardDetails(
-          studentModel!.id, days[DateTime.now().weekday]);
+          isStudent ? studentModel!.id : lecturerModel!.lecturerID, days[DateTime.now().weekday]);
       setState(() {
         timetable = result;
       });
@@ -91,20 +91,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 padding: const EdgeInsets.only(top: 40.0, left: 16.0, right: 16.0),
                 child: Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Hey Chezem Miguel',
-                            style: TextStyle(
+                            'Hey ${userModel?.userName ?? "User"}',
+                            style: const TextStyle(
                               color: Colors.black,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Text(
+                          const Text(
                             'Welcome back to BioAttend',
                             style: TextStyle(
                               color: Colors.black,
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         scale: _homeController.profileImageAnimation,
                         child: CircleAvatar(
                           backgroundImage: (userModel != null && userModel!.image != null && userModel!.image!.isNotEmpty)
-                              ? NetworkImage(userModel!.image!)
+                              ? NetworkImage('https://biometric-attendance-application.onrender.com${userModel?.image ?? ''}')
                               : const AssetImage('assets/images/profile.jpg') as ImageProvider,
                           radius: 20,
                         ),

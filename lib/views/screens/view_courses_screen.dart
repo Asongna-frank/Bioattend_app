@@ -4,6 +4,7 @@ import 'package:bioattend_app/views/widgets/course_card.dart';
 import 'package:flutter/material.dart';
 import 'base_screen.dart';
 import 'home_screen.dart';
+import 'package:intl/intl.dart';
 
 class ViewCoursesScreen extends StatefulWidget {
   const ViewCoursesScreen({super.key});
@@ -29,7 +30,7 @@ class _ViewCoursesScreenState extends State<ViewCoursesScreen> {
 
   Future<void> _fetchCourses() async {
     try {
-      final courses = await _coursesController.getCourses(studentModel!.id);
+      final courses = await _coursesController.getCourses(isStudent ? studentModel!.id : lecturerModel!.lecturerID);
       setState(() {
         _courses = courses;
         _filteredCourses = courses;
@@ -81,6 +82,34 @@ class _ViewCoursesScreenState extends State<ViewCoursesScreen> {
       default:
         return semester;
     }
+  }
+
+  void _showCourseDetails(BuildContext context, Map<String, dynamic> course) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('${course['course']['courseCode']}: ${course['course']['courseName']}'),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_getFormattedDepartment(course['course']['department'])),
+            Text(_getFormattedSemester(course['course']['semester'])),
+            Text('${isStudent ? (course['lecturer'] != null ? course['lecturer']['user_name'] : 'Unknown') : userModel!.userName}'),
+            const SizedBox(height: 10),
+            const Text('Timetable:', style: TextStyle(fontWeight: FontWeight.bold)),
+            ...course['timetable'].map((t) => Text(
+                '${t['day']} | ${t['room'].replaceAll('_', ' ')} | ${DateFormat.jm().format(DateFormat("HH:mm:ss").parse(t['start_time']))} - ${DateFormat.jm().format(DateFormat("HH:mm:ss").parse(t['end_time']))}')).toList(),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -167,16 +196,23 @@ class _ViewCoursesScreenState extends State<ViewCoursesScreen> {
                         itemCount: _filteredCourses.length,
                         itemBuilder: (context, index) {
                           final course = _filteredCourses[index];
+                          final lecturerName = isStudent 
+                              ? (course['lecturer'] != null && course['lecturer'].containsKey('user_name') ? course['lecturer']['user_name'] : 'Unknown')
+                              : userModel!.userName;
+
                           return CourseCard(
                             courseCode: course['course']['courseCode'],
                             courseName: course['course']['courseName'],
                             department: _getFormattedDepartment(course['course']['department']),
                             semester: _getFormattedSemester(course['course']['semester']),
-                            lecturerName: '${course['lecturer']['user_name']}',
-                            lecturerEmail: course['lecturer']['email'],
-                            lecturerNumber: course['lecturer']['number'],
-                            lecturerImage: course['lecturer']['image'],
+                            lecturerName: lecturerName,
+                            lecturerEmail: isStudent ? course['lecturer']['email'] : userModel!.email,
+                            lecturerNumber: isStudent ? course['lecturer']['number'] : userModel!.number,
+                            lecturerImage: isStudent ? course['lecturer']['image'] : userModel!.image,
                             timetable: List<Map<String, dynamic>>.from(course['timetable']),
+                            onTap: () {
+                              _showCourseDetails(context, course);
+                            },
                           );
                         },
                       ),

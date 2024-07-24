@@ -4,11 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class HomeController {
-  Future<List<Map<String, dynamic>>> getCardDetails(int studentID, String day) async {
+  Future<List<Map<String, dynamic>>> getCardDetails(int id, String day) async {
+    final String url = isStudent
+        ? "https://biometric-attendance-application.onrender.com/api/timetable/student/get_student_timetable/"
+        : "https://biometric-attendance-application.onrender.com/api/timetable/lecturer/get_lecturer_timetable/";
+
     final response = await http.post(
-      Uri.parse("https://biometric-attendance-application.onrender.com/api/timetable/student/get_student_timetable/"),
+      Uri.parse(url),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"studentID": studentID, "day": day}),
+      body: isStudent
+          ? jsonEncode({"studentID": id, "day": day})
+          : jsonEncode({"lecturerID": id, "day": day}),
     );
 
     if (response.statusCode == 200) {

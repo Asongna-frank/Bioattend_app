@@ -16,10 +16,9 @@ class AttendanceHistoryScreen extends StatefulWidget {
 class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
   final AttendanceController _attendanceController = AttendanceController();
   List<Map<String, dynamic>> _attendanceHistory = [];
-  List<Map<String, dynamic>> _filteredAttendanceHistory = [];
   bool _isLoading = true;
-  String _selectedStatus = 'All';
-  String _searchQuery = '';
+  String? _selectedStatus;
+  String? _searchQuery;
   DateTimeRange? _selectedDateRange;
 
   @override
@@ -30,7 +29,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
 
   Future<void> _fetchAttendanceHistory() async {
     try {
-      final attendanceHistory = await _attendanceController.getAttendanceHistory(studentModel!.id);
+      final attendanceHistory = await _attendanceController.getAttendanceHistory(isStudent ? studentModel!.id : lecturerModel!.lecturerID);
       for (var attendance in attendanceHistory) {
         try {
           final courseDetails = await _attendanceController.getCourseDetails(attendance['course']);
@@ -43,8 +42,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
         }
       }
       setState(() {
-        _attendanceHistory = attendanceHistory.reversed.toList(); // Most recent first
-        _filteredAttendanceHistory = attendanceHistory.reversed.toList();
+        _attendanceHistory = attendanceHistory;
         _isLoading = false;
       });
     } catch (e) {
@@ -55,21 +53,8 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     }
   }
 
-  void _filterAttendance() {
-    setState(() {
-      _filteredAttendanceHistory = _attendanceHistory.where((attendance) {
-        final matchesStatus = _selectedStatus == 'All' || attendance['status'] == _selectedStatus.toLowerCase();
-        final matchesDateRange = _selectedDateRange == null || (
-          DateTime.parse(attendance['date']).isAfter(_selectedDateRange!.start) &&
-          DateTime.parse(attendance['date']).isBefore(_selectedDateRange!.end.add(const Duration(days: 1)))
-        );
-        final matchesSearch = _searchQuery.isEmpty ||
-            attendance['courseName'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            attendance['courseCode'].toLowerCase().contains(_searchQuery.toLowerCase());
-
-        return matchesStatus && matchesDateRange && matchesSearch;
-      }).toList();
-    });
+  void _filterAttendanceHistory() {
+    setState(() {});
   }
 
   Future<void> _selectDateRange(BuildContext context) async {
@@ -82,9 +67,36 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     if (picked != null && picked != _selectedDateRange) {
       setState(() {
         _selectedDateRange = picked;
-        _filterAttendance();
+        _filterAttendanceHistory();
       });
     }
+  }
+
+  List<Map<String, dynamic>> get filteredAttendanceHistory {
+    List<Map<String, dynamic>> filteredHistory = _attendanceHistory;
+
+    if (_selectedStatus != null && _selectedStatus != 'All') {
+      filteredHistory = filteredHistory.where((attendance) => attendance['status'].toLowerCase() == _selectedStatus!.toLowerCase()).toList();
+    }
+
+    if (_searchQuery != null && _searchQuery!.isNotEmpty) {
+      filteredHistory = filteredHistory.where((attendance) {
+        final courseName = attendance['courseName'].toLowerCase();
+        final courseCode = attendance['courseCode'].toLowerCase();
+        final studentName = attendance['student_name'].toLowerCase();
+        final query = _searchQuery!.toLowerCase();
+        return courseName.contains(query) || courseCode.contains(query) || studentName.contains(query);
+      }).toList();
+    }
+
+    if (_selectedDateRange != null) {
+      filteredHistory = filteredHistory.where((attendance) {
+        final attendanceDate = DateTime.parse(attendance['date']);
+        return attendanceDate.isAfter(_selectedDateRange!.start) && attendanceDate.isBefore(_selectedDateRange!.end.add(const Duration(days: 1)));
+      }).toList();
+    }
+
+    return filteredHistory;
   }
 
   @override
@@ -113,27 +125,25 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                   children: [
                     const SizedBox(height: 10),
                     TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value;
-                          _filterAttendance();
-                        });
-                      },
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.search),
-                        hintText: 'Search for Course',
+                        hintText: 'Search for Course or Name',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
+                      onChanged: (value) {
+                        _searchQuery = value;
+                        _filterAttendanceHistory();
+                      },
                     ),
                     const SizedBox(height: 10),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         DropdownButton<String>(
-                          value: _selectedStatus,
                           hint: const Text('Status'),
+                          value: _selectedStatus,
                           items: <String>['All', 'Present', 'Absent'].map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
@@ -141,10 +151,8 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                             );
                           }).toList(),
                           onChanged: (value) {
-                            setState(() {
-                              _selectedStatus = value!;
-                              _filterAttendance();
-                            });
+                            _selectedStatus = value;
+                            _filterAttendanceHistory();
                           },
                         ),
                         TextButton(
@@ -161,16 +169,25 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                     const SizedBox(height: 10),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: _filteredAttendanceHistory.length,
+                        itemCount: filteredAttendanceHistory.length,
                         itemBuilder: (context, index) {
-                          final attendance = _filteredAttendanceHistory[index];
+                          final attendance = filteredAttendanceHistory[index];
+                          String studentImage;
+                          String studentName;
+                          if (isStudent) {
+                            studentImage = 'https://biometric-attendance-application.onrender.com${userModel?.image ?? ''}';
+                            studentName = userModel!.userName;
+                          } else {
+                            studentImage = 'https://biometric-attendance-application.onrender.com${attendance['student_image']}';
+                            studentName = attendance['student_name'];
+                          }
                           return AttendanceCard(
-                            index: index + 1,
-                            name: userModel!.userName,
+                            studentName: studentName,
                             courseCode: attendance['courseCode'],
                             courseName: attendance['courseName'],
                             date: DateFormat('EEE d MMM | hh:mm a').format(DateTime.parse(attendance['date'])),
                             status: attendance['status'],
+                            studentImage: studentImage,
                           );
                         },
                       ),

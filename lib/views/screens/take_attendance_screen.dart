@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'package:bioattend_app/global.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
-import 'home_screen.dart'; // Import the HomeScreen
+import 'package:wifi_iot/wifi_iot.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'home_screen.dart';
 import 'wifi_selection_screen.dart';
 
 class AttendanceScreen extends StatefulWidget {
@@ -30,6 +33,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   String _formattedTime = '';
   String _formattedDate = '';
   final LocalAuthentication auth = LocalAuthentication();
+  bool _isSessionActive = false;
 
   @override
   void initState() {
@@ -40,8 +44,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _formattedTime = DateFormat('hh:mm a').format(DateTime.now());
-        _formattedDate =
-            DateFormat('MMM dd, yyyy - EEEE').format(DateTime.now());
+        _formattedDate = DateFormat('MMM dd, yyyy - EEEE').format(DateTime.now());
       });
     });
   }
@@ -50,6 +53,65 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   void dispose() {
     _timer.cancel();
     super.dispose();
+  }
+
+  Future<void> _startSession() async {
+    final status = await [
+      Permission.location,
+      Permission.locationWhenInUse,
+      Permission.locationAlways,
+      Permission.nearbyWifiDevices,
+    ].request();
+
+    if (status[Permission.location] != PermissionStatus.granted ||
+        status[Permission.locationWhenInUse] != PermissionStatus.granted ||
+        status[Permission.locationAlways] != PermissionStatus.granted ||
+        status[Permission.nearbyWifiDevices] != PermissionStatus.granted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Permissions not granted.')),
+      );
+      return;
+    }
+
+    bool hotspotOn = await WiFiForIoTPlugin.isWiFiAPEnabled();
+
+    if (!hotspotOn) {
+      bool hotspotStarted = await WiFiForIoTPlugin.setWiFiAPEnabled(true);
+      if (!hotspotStarted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to start hotspot.')),
+        );
+        return;
+      }
+    }
+
+    // Check if the API level supports setting the SSID
+    if (androidInfo.version.sdkInt < 26) {
+      await WiFiForIoTPlugin.setWiFiAPSSID('${userModel!.userName}_FET');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Setting SSID is not supported on API level >= 26.')),
+      );
+    }
+
+    setState(() {
+      _isSessionActive = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Session started, hotspot is now active.')),
+    );
+  }
+
+  Future<void> _endSession() async {
+    await WiFiForIoTPlugin.setWiFiAPEnabled(false);
+    setState(() {
+      _isSessionActive = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Session ended, hotspot is now off.')),
+    );
   }
 
   Future<void> _authenticateAndNavigate() async {
@@ -105,6 +167,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final startTime = TimeOfDay.fromDateTime(DateFormat('HH:mm:ss').parse(widget.startTime));
+    final endTime = TimeOfDay.fromDateTime(DateFormat('HH:mm:ss').parse(widget.endTime));
+    final now = TimeOfDay.now();
+    final isOngoing = now.hour > startTime.hour ||
+        (now.hour == startTime.hour && now.minute >= startTime.minute) &&
+        now.hour < endTime.hour ||
+        (now.hour == endTime.hour && now.minute <= endTime.minute);
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -119,14 +189,16 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             },
           ),
           title: const Text(
-            'Take Attendance',
+            'Start Session',
             style: TextStyle(color: Colors.black),
           ),
-          actions: const [
+          actions: [
             CircleAvatar(
-              backgroundImage: AssetImage('assets/images/profile.jpg'),
+              backgroundImage: (userModel != null && userModel!.image != null && userModel!.image!.isNotEmpty)
+                  ? NetworkImage('https://biometric-attendance-application.onrender.com${userModel!.image!}')
+                  : const AssetImage('assets/images/profile.jpg') as ImageProvider,
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
           ],
           backgroundColor: Colors.white,
           elevation: 0,
@@ -137,10 +209,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             children: [
               Text(
                 _formattedTime,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 64,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1C5A40),
+                  color: _isSessionActive ? Colors.red : Color(0xFF1C5A40),
                 ),
               ),
               const SizedBox(height: 8),
@@ -153,21 +225,37 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _authenticateAndNavigate,
+                onPressed: isOngoing
+                    ? () {
+                        if (_isSessionActive) {
+                          _endSession();
+                        } else {
+                          _startSession();
+                        }
+                      }
+                    : null,
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: const Color(0xFF1C5A40),
+                  foregroundColor: _isSessionActive ? Colors.red : Color(0xFF1C5A40),
                   shape: const CircleBorder(),
                   backgroundColor: Colors.grey[200],
                   padding: const EdgeInsets.all(40),
-                  side: const BorderSide(
-                    color: Color(0xFF1C5A40),
+                  side: BorderSide(
+                    color: _isSessionActive ? Colors.red : Color(0xFF1C5A40),
                     width: 8,
                   ),
                 ),
-                child: const Icon(
-                  Icons.fingerprint,
+                child: Icon(
+                  Icons.wifi,
                   size: 64,
-                  color: Color(0xFF1C5A40),
+                  color: _isSessionActive ? Colors.red : Color(0xFF1C5A40),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _isSessionActive ? 'Tap to End the Session' : 'Tap to Start the Session',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: _isSessionActive ? Colors.red : Color(0xFF1C5A40),
                 ),
               ),
             ],

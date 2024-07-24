@@ -10,6 +10,7 @@ class CourseCard extends StatefulWidget {
   final String lecturerNumber;
   final String lecturerImage;
   final List<Map<String, dynamic>> timetable;
+  final VoidCallback onTap;
 
   const CourseCard({
     super.key,
@@ -22,6 +23,7 @@ class CourseCard extends StatefulWidget {
     required this.lecturerNumber,
     required this.lecturerImage,
     required this.timetable,
+    required this.onTap,
   });
 
   @override
@@ -78,39 +80,11 @@ class _CourseCardState extends State<CourseCard> with SingleTickerProviderStateM
 
   void _handleTapUp(TapUpDetails details) {
     _controller.reverse();
-    _showCourseDetails();
+    widget.onTap();
   }
 
   void _handleTapCancel() {
     _controller.reverse();
-  }
-
-  void _showCourseDetails() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('${widget.courseCode}: ${widget.courseName}'),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(getFormattedDepartment(widget.department)),
-            Text(getFormattedSemester(widget.semester)),
-            Text(widget.lecturerName),
-            const SizedBox(height: 10),
-            const Text('Timetable:', style: TextStyle(fontWeight: FontWeight.bold)),
-            ...widget.timetable.map((t) => Text(
-                '${t['day']} | ${t['room'].replaceAll('_', ' ')} | ${t['start_time']} - ${t['end_time']}')).toList(),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override

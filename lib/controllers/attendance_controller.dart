@@ -1,18 +1,24 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:bioattend_app/global.dart';
 
 class AttendanceController {
-  Future<List<Map<String, dynamic>>> getAttendanceHistory(int studentID) async {
+  Future<List<Map<String, dynamic>>> getAttendanceHistory(int id) async {
+    final String url = isStudent
+        ? "https://biometric-attendance-application.onrender.com/api/attendance/student/get_student_attendance/"
+        : "https://biometric-attendance-application.onrender.com/api/attendance/lecturer/get_lecturer_attendance/";
+
     final response = await http.post(
-      Uri.parse(
-          "https://biometric-attendance-application.onrender.com/api/attendance/student/get_student_attendance/"),
+      Uri.parse(url),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"studentID": studentID}),
+      body: jsonEncode(isStudent ? {"studentID": id} : {"lecturerID": id}),
     );
+
     print(response.body);
 
     if (response.statusCode == 200) {
-      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+      final List<dynamic> responseData = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(responseData);
     } else {
       throw Exception('Failed to load attendance history');
     }
@@ -22,7 +28,6 @@ class AttendanceController {
     final response = await http.get(
       Uri.parse(
           "https://biometric-attendance-application.onrender.com/api/course/$courseID/"),
-      headers: {"Content-Type": "application/json"},
     );
 
     if (response.statusCode == 200) {

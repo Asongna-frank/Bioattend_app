@@ -38,10 +38,11 @@ dependencies:
   http: ^1.2.1
   google_fonts: ^6.2.1
   shared_preferences: ^2.0.6
-  intl: ^0.17.0
+  intl: ^0.19.0
   local_auth: ^2.1.4
-  wifi_iot: ^0.3.0
+  wifi_iot: ^0.3.19
   wifi_scan: ^0.4.1
+  permission_handler: ^10.2.0
   
 
 dev_dependencies:
@@ -53,7 +54,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

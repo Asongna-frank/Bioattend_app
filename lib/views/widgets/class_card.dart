@@ -1,4 +1,4 @@
-import 'dart:async'; // Make sure this import is present
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../screens/take_attendance_screen.dart';
@@ -125,26 +125,23 @@ class _ClassCardState extends State<ClassCard> with SingleTickerProviderStateMix
         scale: Tween(begin: 1.0, end: 0.95).animate(_controller),
         child: Card(
           color: const Color.fromRGBO(248, 248, 249, 1),
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 100, maxHeight: 120), // Ensures all cards are of the same size
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: const Color.fromRGBO(28, 90, 64, 1),
-                child: Text(
-                  widget.index.toString(),
-                  style: const TextStyle(color: Colors.white),
-                ),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: const Color.fromRGBO(28, 90, 64, 1),
+              child: Text(
+                widget.index.toString(),
+                style: const TextStyle(color: Colors.white),
               ),
-              title: Text(
-                '${widget.code}: ${widget.title}',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text('$startTimeFormatted | $endTimeFormatted'),
-              trailing: Text(
-                status,
-                style: TextStyle(color: statusColor),
-              ),
+            ),
+            title: Text(
+              '${widget.code}: ${widget.title}',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text('$startTimeFormatted | $endTimeFormatted'),
+            trailing: Text(
+              status,
+              style: TextStyle(color: statusColor),
             ),
           ),
         ),

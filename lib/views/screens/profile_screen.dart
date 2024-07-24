@@ -35,6 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Container(
                   width: double.infinity,
+                  padding: const EdgeInsets.only(top: 40.0, left: 20.0, right: 20.0, bottom: 0.0),
                   decoration: const BoxDecoration(
                     color: Color(0xFF1C5A40),
                     borderRadius: BorderRadius.only(
@@ -61,7 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 40), // Space to bring the profile image down
                       Stack(
                         alignment: Alignment.center,
-                        children: [                         
+                        children: [
                           CircleAvatar(
                             radius: 85,
                             backgroundColor: Colors.white, // White stroke
@@ -92,17 +93,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      _buildSectionTitle('Academic'),
-                      const SizedBox(height: 10),
-                      _buildInfoSection(
-                        context,
-                        [
-                          _buildInfoItem('Matricule', studentModel?.matricule ?? ''),
-                          _buildInfoItem('Department', studentModel?.department ?? ''),
-                          _buildInfoItem('Level', studentModel?.level ?? ''),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
+                      if (isStudent) ...[
+                        _buildSectionTitle('Academic'),
+                        const SizedBox(height: 10),
+                        _buildInfoSection(
+                          context,
+                          [
+                            _buildInfoItem('Matricule', studentModel?.matricule ?? ''),
+                            _buildInfoItem('Department', studentModel?.department ?? ''),
+                            _buildInfoItem('Level', studentModel?.level ?? ''),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                      ],
                       _buildPasswordSection(),
                       if (_showPasswordFields) ...[
                         _buildPasswordField('Current Password'),
