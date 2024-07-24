@@ -1,4 +1,5 @@
 # This is a generated file; do not edit or check into version control.
+app_settings=/home/asongna/.pub-cache/hosted/pub.dev/app_settings-5.1.1/
 flutter_plugin_android_lifecycle=/home/asongna/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.20/
 local_auth=/home/asongna/.pub-cache/hosted/pub.dev/local_auth-2.2.0/
 local_auth_android=/home/asongna/.pub-cache/hosted/pub.dev/local_auth_android-1.0.42/
@@ -20,4 +21,3 @@ shared_preferences_linux=/home/asongna/.pub-cache/hosted/pub.dev/shared_preferen
 shared_preferences_web=/home/asongna/.pub-cache/hosted/pub.dev/shared_preferences_web-2.2.1/
 shared_preferences_windows=/home/asongna/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.3.2/
 wifi_iot=/home/asongna/.pub-cache/hosted/pub.dev/wifi_iot-0.3.19/
-wifi_scan=/home/asongna/.pub-cache/hosted/pub.dev/wifi_scan-0.4.1/
