@@ -41,15 +41,22 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
           attendance['courseCode'] = 'Unknown Code';
         }
       }
-      setState(() {
-        _attendanceHistory = attendanceHistory;
-        _isLoading = false;
-      });
+      // Sort records by date in descending order
+      attendanceHistory.sort((a, b) => DateTime.parse(b['date']).compareTo(DateTime.parse(a['date'])));
+
+      if (mounted) {
+        setState(() {
+          _attendanceHistory = attendanceHistory;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error fetching attendance history: $e')));
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error fetching attendance history: $e')));
+      }
     }
   }
 
@@ -99,102 +106,115 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     return filteredHistory;
   }
 
+  Future<bool> _onWillPop(BuildContext context) async {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BaseScreen(
-      currentIndex: 1,
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-              );
-            },
+    return WillPopScope(
+      onWillPop: () => _onWillPop(context),
+      child: BaseScreen(
+        currentIndex: 1,
+        child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                );
+              },
+            ),
+            title: const Text('Attendance History'),
           ),
-          title: const Text('Attendance History'),
-        ),
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    TextField(
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.search),
-                        hintText: 'Search for Course or Name',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      TextField(
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.search),
+                          hintText: 'Search for Course or Name',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
-                      ),
-                      onChanged: (value) {
-                        _searchQuery = value;
-                        _filterAttendanceHistory();
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        DropdownButton<String>(
-                          hint: const Text('Status'),
-                          value: _selectedStatus,
-                          items: <String>['All', 'Present', 'Absent'].map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            _selectedStatus = value;
-                            _filterAttendanceHistory();
-                          },
-                        ),
-                        TextButton(
-                          onPressed: () => _selectDateRange(context),
-                          child: const Text('Date'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Your Attendance',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: filteredAttendanceHistory.length,
-                        itemBuilder: (context, index) {
-                          final attendance = filteredAttendanceHistory[index];
-                          String studentImage;
-                          String studentName;
-                          if (isStudent) {
-                            studentImage = 'https://biometric-attendance-application.onrender.com${userModel?.image ?? ''}';
-                            studentName = userModel!.userName;
-                          } else {
-                            studentImage = 'https://biometric-attendance-application.onrender.com${attendance['student_image']}';
-                            studentName = attendance['student_name'];
-                          }
-                          return AttendanceCard(
-                            studentName: studentName,
-                            courseCode: attendance['courseCode'],
-                            courseName: attendance['courseName'],
-                            date: DateFormat('EEE d MMM | hh:mm a').format(DateTime.parse(attendance['date'])),
-                            status: attendance['status'],
-                            studentImage: studentImage,
-                          );
+                        onChanged: (value) {
+                          _searchQuery = value;
+                          _filterAttendanceHistory();
                         },
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          DropdownButton<String>(
+                            hint: const Text('Status'),
+                            value: _selectedStatus,
+                            items: <String>['All', 'Present', 'Absent'].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedStatus = value;
+                                _filterAttendanceHistory();
+                              });
+                            },
+                          ),
+                          TextButton(
+                            onPressed: () => _selectDateRange(context),
+                            child: const Text('Date'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Your Attendance',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: filteredAttendanceHistory.length,
+                          itemBuilder: (context, index) {
+                            final attendance = filteredAttendanceHistory[index];
+                            String studentImage;
+                            String studentName;
+                            if (isStudent) {
+                              studentImage = 'https://biometric-attendance-application.onrender.com${userModel?.image ?? ''}';
+                              studentName = userModel!.userName;
+                            } else {
+                              studentImage = 'https://biometric-attendance-application.onrender.com${attendance['student_image']}';
+                              studentName = attendance['student_name'];
+                            }
+                            return AttendanceCard(
+                              studentName: studentName,
+                              courseCode: attendance['courseCode'],
+                              courseName: attendance['courseName'],
+                              date: DateFormat('EEE d MMM | hh:mm a').format(DateTime.parse(attendance['date'])),
+                              status: attendance['status'],
+                              studentImage: studentImage,
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }

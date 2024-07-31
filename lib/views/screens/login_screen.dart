@@ -185,28 +185,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Forgot password? ',
-                        style: GoogleFonts.spaceGrotesk(),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Handle password reset
-                        },
-                        child: Text(
-                          'Reset it',
-                          style: GoogleFonts.spaceGrotesk(
-                            color: const Color.fromRGBO(28, 90, 64, 1),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.end,
+                  //   children: [
+                  //     Text(
+                  //       'Forgot password? ',
+                  //       style: GoogleFonts.spaceGrotesk(),
+                  //     ),
+                  //     TextButton(
+                  //       onPressed: () {
+                  //         // Handle password reset
+                  //       },
+                  //       child: Text(
+                  //         'Reset it',
+                  //         style: GoogleFonts.spaceGrotesk(
+                  //           color: const Color.fromRGBO(28, 90, 64, 1),
+                  //           fontWeight: FontWeight.bold,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // const SizedBox(height: 20),
                   Center(
                     child: _isLoading
                         ? const CircularProgressIndicator()
